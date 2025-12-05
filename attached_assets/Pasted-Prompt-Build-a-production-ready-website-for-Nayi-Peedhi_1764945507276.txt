@@ -1,0 +1,106 @@
+Prompt: Build a production-ready website for "Nayi Peedhi Ka Janseva Parivar (NPJP)" — Vercel-first + Supabase for persistence.
+
+OVERVIEW
+- Organization: Nayi Peedhi Ka Janseva Parivar (NPJP)
+- Language: Hinglish (mix of Hindi + English), friendly-professional
+- Design: Modern dark theme (#0D1117 background), text white, accents from logo palette:
+  - Yellow: #F4C542
+  - Green : #3AAA63
+  - Blue  : #2D8CFF
+  - Purple: #8A52FF
+  - Orange: #F28C38
+- Fonts: Google Fonts Inter + Rajdhani
+- Frontend: Plain HTML/CSS/JS (no React)
+- Hosting: Vercel (free tier) using Serverless Functions for APIs
+- Persistence: Supabase (free tier) for reviews, contacts, volunteers
+- Social links (use exactly these):
+  - Instagram: https://www.instagram.com/npjp_2025
+  - WhatsApp Group Invite: https://chat.whatsapp.com/EbbmygVu9ZOB13UBEGZIHc?mode=hqrt2
+
+FILES TO DELIVER (exact names)
+- package.json
+- README.md (deployment steps + env vars)
+- public/index.html
+- public/styles.css
+- public/script.js
+- public/logo.png
+- public/pay-qr.png
+- api/reviews.js (serverless)
+- api/contacts.js (serverless)
+- api/volunteers.js (serverless)
+- api/create-order.js (serverless; uses Razorpay if RAZORPAY_KEY_ID + secret present)
+- vercel.json (optional rewrites)
+
+IMPORTANT: Do **not** use file-based DB (lowdb) for Vercel production. Use Supabase (Postgres) or Firebase for persistent storage. Lowdb acceptable only for local dev; mention clearly in README.
+
+FRONTEND (Sections & content)
+- Header/Navbar: logo left, nav links, Instagram icon (INSTAGRAM_LINK), "Join WhatsApp Group" button (opens WHATSAPP_INVITE_LINK)
+- Hero: 
+  Title: "Nayi Peedhi Ka Janseva Parivar (NPJP)"
+  Sub: "Ground level sach ko saamne lana — Bringing real issues to light."
+  Buttons: "Donate Now", "Join WhatsApp Group", "Follow on Instagram"
+- About: Hinglish intro, mission & vision bullets
+- Work: 4 cards (Field Reporting, Public Help, Awareness, Support Work)
+- Photo Gallery / Media Showcase:
+  Title exactly: "Photo Gallery / Media Showcase"
+  6–8 Unsplash images, responsive grid (3/2/1)
+- Founding Members (NEW):
+  Title: "Our Founding Members"
+  Subtext: "NPJP ko mazboot banane wale core pillars"
+  5 member cards (Shubham, Biswajeet, Subir, Sumit, Sourav) — avatar placeholder, role "Founding Member — NPJP", colored ring using logo palette
+- Reviews:
+  Form: name (optional), review text (required), rating 1–5 → POST /api/reviews
+  List loaded from GET /api/reviews
+- Volunteer Registration:
+  Fields: Full Name*, Email*, Phone*, City/Pin, Skills/Interests, Availability, Consent checkbox*
+  POST /api/volunteers
+  On success show CTAs: Join WhatsApp Group, Follow Instagram
+- Contact:
+  Form → POST /api/contacts
+- Donate / Payments:
+  Show QR (public/pay-qr.png), UPI: npjp@upi (copy button), bank details
+  Donate Modal to enter amount → call POST /api/create-order (supabase used for storing donation intent optionally)
+  If RAZORPAY not configured return friendly JSON { error: "Razorpay not configured" }
+- Footer: links + social icons
+
+API SPEC (serverless functions under /api)
+- GET /api/reviews => returns list from Supabase
+- POST /api/reviews => body { name, text, rating } validate text required; save { id, name, text, rating, date }
+- GET /api/contacts => returns contacts (admin only)
+- POST /api/contacts => body { name, email, location, message } validate required; save { id, name, email, location, message, date }
+- GET /api/volunteers => admin only (header x-admin-key = ADMIN_KEY)
+- POST /api/volunteers => body { name, email, phone, city, skills, availability, consent } validate required; save record
+- POST /api/create-order => body { amount } if RAZORPAY configured create order, else return 501
+
+SECURITY & ENV VARS
+- Use env vars in Vercel dashboard:
+  - SUPABASE_URL
+  - SUPABASE_ANON_KEY (or SERVICE_ROLE key for server side)
+  - ADMIN_KEY
+  - RAZORPAY_KEY_ID (optional)
+  - RAZORPAY_KEY_SECRET (optional)
+  - INSTAGRAM_LINK = https://www.instagram.com/npjp_2025
+  - WHATSAPP_INVITE_LINK = https://chat.whatsapp.com/EbbmygVu9ZOB13UBEGZIHc?mode=hqrt2
+  - EMAIL_SMTP_* or SENDGRID_KEY (optional)
+
+ADMIN RULES
+- Protect admin routes by verifying header `x-admin-key` equals ADMIN_KEY.
+- Provide CSV export endpoint for volunteers (admin only).
+- Sanitize input and basic rate-limiting (simple in-memory throttle is fine).
+
+README must include:
+- Local dev steps (npm install, .env sample)
+- How to create Supabase free project & create tables (reviews, contacts, volunteers) + sample SQL
+- How to push to GitHub and connect to Vercel
+- How to set env vars on Vercel
+- Sample curl commands for all endpoints
+- Note: For local dev lowdb fallback is allowed; production must use Supabase.
+
+UX NOTES
+- Mobile-first, accessible markup, labels, aria attributes for modal
+- Buttons rounded, subtle glow with logo color accents
+- Use the provided logo image and color rings on founding members
+- All visible text must reference "Nayi Peedhi Ka Janseva Parivar" or "NPJP"
+
+DELIVERABLE: Provide a GitHub-ready repo structure and README. Include vercel.json or instructions to use Vercel serverless functions.
+
