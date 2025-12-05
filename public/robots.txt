@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://nayi-peedhi-ka-janseva-pariwar.onrender.com/sitemap.xml
